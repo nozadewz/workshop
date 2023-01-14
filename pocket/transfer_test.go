@@ -11,6 +11,7 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/kkgo-software-engineering/workshop/config"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 )
@@ -48,7 +49,7 @@ func TestTransfer(t *testing.T) {
 		mock.ExpectExec("INSERT INTO transaction_history (.+)").WillReturnResult(driver.RowsAffected(1))
 		mock.ExpectCommit()
 
-		h := handler{db: db}
+		h := New(config.FeatureFlag{}, db)
 		err = h.Transfer(c)
 
 		if assert.NoError(t, err) {
@@ -89,7 +90,7 @@ func TestTransfer(t *testing.T) {
 		mock.ExpectExec("UPDATE pockets SET (.+)").WithArgs(50.0, 1).WillReturnError(driver.ErrBadConn)
 		mock.ExpectRollback()
 
-		h := handler{db: db}
+		h := New(config.FeatureFlag{}, db)
 		err = h.Transfer(c)
 
 		if assert.NoError(t, err) {
@@ -129,7 +130,7 @@ func TestTransfer(t *testing.T) {
 		mock.ExpectExec("UPDATE pockets SET (.+)").WithArgs(100.0, 2).WillReturnError(driver.ErrBadConn)
 		mock.ExpectRollback()
 
-		h := handler{db: db}
+		h := New(config.FeatureFlag{}, db)
 		err = h.Transfer(c)
 
 		if assert.NoError(t, err) {
@@ -170,7 +171,7 @@ func TestTransfer(t *testing.T) {
 		mock.ExpectExec("INSERT INTO transaction_history (.+)").WillReturnError(assert.AnError)
 		mock.ExpectRollback()
 
-		h := handler{db: db}
+		h := New(config.FeatureFlag{}, db)
 		err = h.Transfer(c)
 
 		if assert.NoError(t, err) {
@@ -200,7 +201,7 @@ func TestTransfer(t *testing.T) {
 		}
 		mock.ExpectPrepare("select (.+) from pockets").WillReturnError(assert.AnError)
 
-		h := handler{db: db}
+		h := New(config.FeatureFlag{}, db)
 		err = h.Transfer(c)
 
 		if assert.NoError(t, err) {
@@ -235,7 +236,7 @@ func TestTransfer(t *testing.T) {
 			ExpectQuery().WithArgs(2).
 			WillReturnError(assert.AnError)
 
-		h := handler{db: db}
+		h := New(config.FeatureFlag{}, db)
 		err = h.Transfer(c)
 
 		if assert.NoError(t, err) {
@@ -262,7 +263,7 @@ func TestTransfer(t *testing.T) {
 		if err != nil {
 			t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
 		}
-		h := handler{db: db}
+		h := New(config.FeatureFlag{}, db)
 		err = h.Transfer(c)
 
 		if assert.NoError(t, err) {
@@ -289,7 +290,7 @@ func TestTransfer(t *testing.T) {
 		if err != nil {
 			t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
 		}
-		h := handler{db: db}
+		h := New(config.FeatureFlag{}, db)
 		err = h.Transfer(c)
 
 		if assert.NoError(t, err) {
@@ -323,7 +324,7 @@ func TestTransfer(t *testing.T) {
 		mock.ExpectPrepare("select (.+) from pockets").
 			ExpectQuery().WithArgs(2).
 			WillReturnRows(sqlmock.NewRows(col).AddRow(2, "apocket", "A", "THB", 10.0))
-		h := handler{db: db}
+		h := New(config.FeatureFlag{}, db)
 		err = h.Transfer(c)
 
 		if assert.NoError(t, err) {
