@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"fmt"
 	"net/http"
-	"strconv"
 
 	"github.com/google/uuid"
 	"github.com/kkgo-software-engineering/workshop/config"
@@ -12,8 +11,8 @@ import (
 )
 
 type TransferRequest struct {
-	SourceCloudPocketId      string  `json:"source_cloud_pocket_id"`
-	DestinationCloudPocketId string  `json:"destination_cloud_pocket_id"`
+	SourceCloudPocketId      int     `json:"source_cloud_pocket_id"`
+	DestinationCloudPocketId int     `json:"destination_cloud_pocket_id"`
 	Amount                   float64 `json:"amount"`
 	Description              string  `json:"description"`
 }
@@ -43,46 +42,43 @@ func New(cfgFlag config.FeatureFlag, db *sql.DB) *handler {
 }
 
 func (h handler) Transfer(c echo.Context) error {
-	var transferRequest TransferRequest
-	err := c.Bind(&transferRequest)
+	var tfr TransferRequest
+	err := c.Bind(&tfr)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
-	if transferRequest.Amount < 0 {
+	if tfr.Amount < 0 {
 		return c.JSON(http.StatusBadRequest, "Amount must be greater than 0")
 	}
-	srcPocket := Pocket{}
-	destPocket := Pocket{}
+	sp := Pocket{}
+	dp := Pocket{}
 
-	srcPocketIdRequest, _ := strconv.Atoi(transferRequest.SourceCloudPocketId)
-	destPocketIdRequest, _ := strconv.Atoi(transferRequest.DestinationCloudPocketId)
+	sp, _ = h.getPocketById(tfr.SourceCloudPocketId, c)
+	dp, _ = h.getPocketById(tfr.DestinationCloudPocketId, c)
 
-	srcPocket, _ = h.getPocketById(srcPocketIdRequest, c)
-	destPocket, _ = h.getPocketById(destPocketIdRequest, c)
-
-	remainSpBal := srcPocket.Balance - transferRequest.Amount
-	if remainSpBal < 0 {
+	newSpBal := sp.Balance - tfr.Amount
+	if newSpBal < 0 {
 		return c.JSON(http.StatusBadRequest, "Not enough money in source cloud pocket")
 	}
-	srcPocket.Balance = remainSpBal
+	sp.Balance = newSpBal
 
-	balance_destPocket := destPocket.Balance + transferRequest.Amount
-	destPocket.Balance = balance_destPocket
+	newDpBal := dp.Balance + tfr.Amount
+	dp.Balance = newDpBal
 
-	err = h.updateBalance(srcPocket)
+	err = h.updateBalance(sp)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
-	err = h.updateBalance(destPocket)
+	err = h.updateBalance(dp)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 
-	txn, err := h.logTransferTxn(srcPocket, destPocket, transferRequest.Amount, transferRequest.Description)
+	txn, err := h.logTransferTxn(sp, dp, tfr.Amount, tfr.Description)
 	resp := TransferResponse{
 		TransactionId:          txn,
-		SourceCloudPocket:      srcPocket,
-		DestinationCloudPocket: destPocket,
+		SourceCloudPocket:      sp,
+		DestinationCloudPocket: dp,
 		Status:                 "Success",
 	}
 	if err != nil {
@@ -111,7 +107,7 @@ type TransactionHistory struct {
 
 func (h handler) logTransferTxn(src Pocket, dest Pocket, amount float64, desc string) (string, error) {
 	uuid := uuid.New()
-	src_txn := TransactionHistory{
+	spTxn := TransactionHistory{
 		TransactionId:   uuid.String(),
 		CloudPocketId:   src.Id,
 		Amount:          amount,
@@ -119,7 +115,7 @@ func (h handler) logTransferTxn(src Pocket, dest Pocket, amount float64, desc st
 		Description:     desc,
 	}
 
-	dest_txn := TransactionHistory{
+	dpTxn := TransactionHistory{
 		TransactionId:   uuid.String(),
 		CloudPocketId:   dest.Id,
 		Amount:          amount,
@@ -127,14 +123,14 @@ func (h handler) logTransferTxn(src Pocket, dest Pocket, amount float64, desc st
 		Description:     desc,
 	}
 
-	err := h.InsertTransactionHistory(src_txn)
+	err := h.InsertTransactionHistory(spTxn)
 	if err != nil {
-		return src_txn.TransactionId, err
+		return spTxn.TransactionId, err
 	}
-	err = h.InsertTransactionHistory(dest_txn)
+	err = h.InsertTransactionHistory(dpTxn)
 	if err != nil {
-		return src_txn.TransactionId, err
+		return spTxn.TransactionId, err
 	}
 
-	return src_txn.TransactionId, err
+	return spTxn.TransactionId, err
 }
