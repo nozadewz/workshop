@@ -65,3 +65,39 @@ func TestCreatePocket(t *testing.T) {
 		})
 	}
 }
+
+func TestCreatePocketError(t *testing.T) {
+	tests := []struct {
+		name    string
+		cfgFlag config.FeatureFlag
+		sqlFn   func() (*sql.DB, error)
+		reqBody string
+		wantErr error
+	}{
+		{"create with bad request",
+			config.FeatureFlag{},
+			func() (*sql.DB, error) {
+				return nil, nil
+			},
+			`ba`,
+			echo.NewHTTPError(http.StatusBadRequest, "bad request body"),
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			e := echo.New()
+			req := httptest.NewRequest(http.MethodPost, "/", strings.NewReader(tc.reqBody))
+			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+			rec := httptest.NewRecorder()
+			c := e.NewContext(req, rec)
+
+			db, _ := tc.sqlFn()
+			h := New(tc.cfgFlag, db)
+
+			berr := h.CreatePocket(c)
+			// Assertions
+			assert.Equal(t, berr, tc.wantErr)
+		})
+	}
+}
