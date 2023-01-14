@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/google/uuid"
 	"github.com/kkgo-software-engineering/workshop/config"
 	"github.com/labstack/echo/v4"
 )
@@ -65,24 +64,22 @@ func (h handler) Transfer(c echo.Context) error {
 	newDpBal := dp.Balance + tfr.Amount
 	dp.Balance = newDpBal
 
-	err = h.updateBalance(sp)
-	if err != nil {
-		return c.JSON(http.StatusInternalServerError, err.Error())
-	}
-	err = h.updateBalance(dp)
-	if err != nil {
-		return c.JSON(http.StatusInternalServerError, err.Error())
+	txn := TransferTxn{
+		Src:         sp,
+		Dest:        dp,
+		Amount:      tfr.Amount,
+		Description: tfr.Description,
 	}
 
-	txn, err := h.logTransferTxn(sp, dp, tfr.Amount, tfr.Description)
+	txnId, err := transferBalanceAndLog(h.db, txn)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
 	resp := TransferResponse{
-		TransactionId:          txn,
+		TransactionId:          txnId,
 		SourceCloudPocket:      sp,
 		DestinationCloudPocket: dp,
 		Status:                 "Success",
-	}
-	if err != nil {
-		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 
 	return c.JSON(http.StatusOK, resp)
@@ -105,32 +102,9 @@ type TransactionHistory struct {
 	CreatedAt       string  `json:"created_at"`
 }
 
-func (h handler) logTransferTxn(src Pocket, dest Pocket, amount float64, desc string) (string, error) {
-	uuid := uuid.New()
-	spTxn := TransactionHistory{
-		TransactionId:   uuid.String(),
-		CloudPocketId:   src.Id,
-		Amount:          amount,
-		TransactionType: "debit",
-		Description:     desc,
-	}
-
-	dpTxn := TransactionHistory{
-		TransactionId:   uuid.String(),
-		CloudPocketId:   dest.Id,
-		Amount:          amount,
-		TransactionType: "credit",
-		Description:     desc,
-	}
-
-	err := h.InsertTransactionHistory(spTxn)
-	if err != nil {
-		return spTxn.TransactionId, err
-	}
-	err = h.InsertTransactionHistory(dpTxn)
-	if err != nil {
-		return spTxn.TransactionId, err
-	}
-
-	return spTxn.TransactionId, err
+type TransferTxn struct {
+	Src         Pocket
+	Dest        Pocket
+	Amount      float64
+	Description string
 }
