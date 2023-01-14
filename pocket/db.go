@@ -76,7 +76,7 @@ func logTransferTxn(tx *sql.Tx, t TransferTxn) (string, error) {
 }
 
 func updateBalance(tx *sql.Tx, p Pocket) error {
-	sqlStatement := `UPDATE cloud_pockets SET balance=$1 WHERE id=$2`
+	sqlStatement := `UPDATE pockets SET balance=$1 WHERE id=$2`
 	_, err := tx.Exec(sqlStatement, p.Balance, p.Id)
 	return err
 }
