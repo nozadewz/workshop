@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/kkgo-software-engineering/workshop/config"
+	"github.com/kkgo-software-engineering/workshop/db"
 	"github.com/kkgo-software-engineering/workshop/router"
 	"go.uber.org/zap"
 
@@ -25,11 +26,14 @@ func main() {
 		log.Fatal(err)
 	}
 
+	fmt.Printf("db connection %v", cfg.DBConnection)
 	sql, err := sql.Open("postgres", cfg.DBConnection)
 	if err != nil {
 		logger.Fatal("unable to configure database", zap.Error(err))
 	}
 
+	db.MigrationCloudPocket(sql)
+	db.MigrationTransactionHistory(sql)
 	e := router.RegRoute(cfg, logger, sql)
 
 	addr := fmt.Sprintf("%s:%d", cfg.Server.Hostname, cfg.Server.Port)
