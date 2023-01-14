@@ -9,8 +9,8 @@ func MigrationTransactionHistory(db *sql.DB) *sql.DB {
 	// Create table
 	createTb := `CREATE TABLE IF NOT EXISTS transaction_history (
 		transaction_id text,
-		pocket_id int4,
-		amount float8,
+		pocket_id integer,
+		amount decimal,
 		transaction_type text,
 		description text,
 		created_at timestamp default now(),
@@ -28,7 +28,7 @@ func MigrationTransactionHistory(db *sql.DB) *sql.DB {
 
 func MigrationCloudPocket(db *sql.DB) *sql.DB {
 	// Create table
-	createTb := `CREATE TABLE IF NOT EXISTS cloud_pockets (
+	createTb := `CREATE TABLE IF NOT EXISTS pockets (
 		id SERIAL primary key ,
 		name text,
 		category text,
