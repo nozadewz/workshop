@@ -57,3 +57,7 @@ func (h handler) CreatePocket(c echo.Context) error {
 	cp.ID = lastInsertId
 	return c.JSON(http.StatusCreated, cp)
 }
+
+type Err struct {
+	Message string `json:"message"`
+}
