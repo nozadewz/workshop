@@ -1,8 +1,8 @@
-package cloudpocket
+package pocket
 
 func (h handler) getPocketById(id int) (Pocket, error) {
 	p := Pocket{}
-	stmt, err := h.db.Prepare("select * from cloud_pockets  where id=$1")
+	stmt, err := h.db.Prepare("select * from pockets  where id=$1")
 	if err != nil {
 		return p, err
 	}
@@ -14,7 +14,7 @@ func (h handler) getPocketById(id int) (Pocket, error) {
 
 func (h handler) updateBalance(p Pocket) error {
 
-	sqlStatement := `UPDATE cloud_pockets SET balance=$1 WHERE id=$2`
+	sqlStatement := `UPDATE pockets SET balance=$1 WHERE id=$2`
 	_, err := h.db.Exec(sqlStatement, p.Balance, p.Id)
 	return err
 }

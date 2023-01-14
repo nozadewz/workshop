@@ -15,7 +15,7 @@ func MigrationTransactionHistory(db *sql.DB) *sql.DB {
 		description text,
 		created_at timestamp default now(),
 		PRIMARY KEY(transaction_id, pocket_id),
-		CONSTRAINT fk_pocket_id FOREIGN KEY(pocket_id) REFERENCES cloud_pockets(id)
+		CONSTRAINT fk_pocket_id FOREIGN KEY(pocket_id) REFERENCES pockets(id)
 	);`
 	_, err := db.Exec(createTb)
 
