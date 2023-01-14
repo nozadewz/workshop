@@ -30,6 +30,19 @@ func main() {
 		logger.Fatal("unable to configure database", zap.Error(err))
 	}
 
+	createTBAccount := `CREATE TABLE IF NOT EXISTS accounts (id SERIAL PRIMARY KEY, balance FLOAT)`
+	createTBPocket := `CREATE TABLE IF NOT EXISTS pockets (id SERIAL PRIMARY KEY, name TEXT, category TEXT, currency TEXT, balance FLOAT)`
+
+	_, err = sql.Exec(createTBAccount)
+	if err != nil {
+		log.Fatal("can't create table accounts", err)
+	}
+
+	_, err = sql.Exec(createTBPocket)
+	if err != nil {
+		log.Fatal("can't create table pockets", err)
+	}
+
 	e := router.RegRoute(cfg, logger, sql)
 
 	addr := fmt.Sprintf("%s:%d", cfg.Server.Hostname, cfg.Server.Port)

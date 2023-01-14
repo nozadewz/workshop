@@ -40,7 +40,7 @@ const (
 
 const (
 	dPort         = 1323
-	dDBConnection = "postgres://wvfpcdlp:1CD8Hyj-Qb-HY9wnUprgENbHGCVDaQwT@tiny.db.elephantsql.com/wvfpcdlp"
+	dDBConnection = "postgres://hxmpfqku:a0oju9CBV4oaIU5mZYxB224N2wu2RdEB@tiny.db.elephantsql.com/hxmpfqku"
 )
 
 func (c *cfg) All() Config {
