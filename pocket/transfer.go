@@ -19,8 +19,8 @@ type TransferRequest struct {
 
 type Pocket struct {
 	Id       int     `json:"id"`
-	Name     string  `json:"title"`
-	Category string  `json:"amount"`
+	Name     string  `json:"name"`
+	Category string  `json:"category"`
 	Currency string  `json:"-"`
 	Balance  float64 `json:"balance"`
 }

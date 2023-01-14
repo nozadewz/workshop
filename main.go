@@ -26,7 +26,6 @@ func main() {
 		log.Fatal(err)
 	}
 
-	fmt.Printf("db connection %v", cfg.DBConnection)
 	sql, err := sql.Open("postgres", cfg.DBConnection)
 	if err != nil {
 		logger.Fatal("unable to configure database", zap.Error(err))

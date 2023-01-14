@@ -4,12 +4,15 @@ package pocket
 
 import (
 	"database/sql"
+	"encoding/json"
+	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
 
 	"github.com/kkgo-software-engineering/workshop/config"
+	"github.com/kkgo-software-engineering/workshop/db"
 	"github.com/labstack/echo/v4"
 	_ "github.com/lib/pq"
 	"github.com/stretchr/testify/assert"
@@ -30,6 +33,8 @@ func TestPocketTransfer(t *testing.T) {
 	e.POST("/cloud-pockets/transfer", hPocket.Transfer)
 
 	// need to be post pocket
+	db.MigrationCloudPocket(sql)
+	db.MigrationTransactionHistory(sql)
 	hPocket.db.Exec(`INSERT INTO pockets(name, category, currency, balance) VALUES ('Travel Fund', 'Vacation', 'THB', 200), ('Savings', 'Emergency Fund', 'THB', 100);`)
 
 	reqBody := `{
@@ -44,7 +49,21 @@ func TestPocketTransfer(t *testing.T) {
 
 	e.ServeHTTP(rec, req)
 
-	expected := `{"id": 1, "balance": 999.99}`
+	byteBody, err := ioutil.ReadAll(rec.Body)
+	assert.NoError(t, err)
+
+	var tfrs TransferResponse
+	json.Unmarshal(byteBody, &tfrs)
 	assert.Equal(t, http.StatusOK, rec.Code)
-	assert.JSONEq(t, expected, rec.Body.String())
+	assert.NotEmpty(t, tfrs.TransactionId)
+	//assert source cloud pocket
+	assert.Equal(t, 1, tfrs.SourceCloudPocket.Id)
+	assert.Equal(t, "Travel Fund", tfrs.SourceCloudPocket.Name)
+	assert.Equal(t, "Vacation", tfrs.SourceCloudPocket.Category)
+	assert.Equal(t, 150.00, tfrs.SourceCloudPocket.Balance)
+	//assert destination cloud pocket
+	assert.Equal(t, 2, tfrs.DestinationCloudPocket.Id)
+	assert.Equal(t, "Savings", tfrs.DestinationCloudPocket.Name)
+	assert.Equal(t, "Emergency Fund", tfrs.DestinationCloudPocket.Category)
+	assert.Equal(t, 150.00, tfrs.DestinationCloudPocket.Balance)
 }
