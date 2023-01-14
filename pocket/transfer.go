@@ -89,6 +89,7 @@ func (h handler) Transfer(c echo.Context) error {
 
 	txnId, err := transferBalanceAndLog(h.db, txn)
 	if err != nil {
+		logger.Error("Error while transferring balance", zap.Error(err))
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 	resp := TransferResponse{
