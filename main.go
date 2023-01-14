@@ -31,7 +31,7 @@ func main() {
 	}
 
 	createTBAccount := `CREATE TABLE IF NOT EXISTS accounts (id SERIAL PRIMARY KEY, balance FLOAT)`
-	createTBPocket := `CREATE TABLE IF NOT EXISTS pockets (id SERIAL PRIMARY KEY, account_ids INT, name TEXT, category TEXT, currency TEXT, balance FLOAT, CONSTRAINT fk_account_id FOREIGN KEY(account_id) REFERENCES accounts(id))`
+	createTBPocket := `CREATE TABLE IF NOT EXISTS pockets (id SERIAL PRIMARY KEY, account_id INT, name TEXT, category TEXT, currency TEXT, balance FLOAT, CONSTRAINT fk_account_id FOREIGN KEY(account_id) REFERENCES accounts(id))`
 
 	_, err = sql.Exec(createTBAccount)
 	if err != nil {
