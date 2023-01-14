@@ -30,7 +30,11 @@ func TestCreatePocket(t *testing.T) {
 					return nil, err
 				}
 				row := sqlmock.NewRows([]string{"id"}).AddRow(1)
+				// row2 := sqlmock.NewRows([]string{"balance"}).AddRow(200)
+				// mock.ExpectQuery(chkMoney).WillReturnRows(row2)
 				mock.ExpectQuery(cStmt).WillReturnRows(row)
+				// mock.ExpectQuery(setBalance).WillReturnRows(row1)
+
 				return db, err
 			},
 			`{
