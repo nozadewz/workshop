@@ -34,8 +34,8 @@ func RegRoute(cfg config.Config, logger *zap.Logger, db *sql.DB) *echo.Echo {
 	hFeatFlag := featflag.New(cfg)
 	e.GET("/features", hFeatFlag.List)
 
-	hCloudPockets := pocket.New(cfg.FeatureFlag, db)
-	e.POST("/cloud-pockets/transfer", hCloudPockets.Transfer)
+	hPocket := pocket.New(cfg.FeatureFlag, db)
+	e.POST("/cloud-pockets/transfer", hPocket.Transfer)
 
 	return e
 }
