@@ -40,7 +40,7 @@ const (
 
 const (
 	dPort         = 1323
-	dDBConnection = "postgresql://postgres:password@localhost:5432/banking?sslmode=disable"
+	dDBConnection = "postgres://wvfpcdlp:1CD8Hyj-Qb-HY9wnUprgENbHGCVDaQwT@tiny.db.elephantsql.com/wvfpcdlp"
 )
 
 func (c *cfg) All() Config {
