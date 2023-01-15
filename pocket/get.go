@@ -11,8 +11,8 @@ func (h handler) GetPocketBalanceById(c echo.Context) error {
 	id := c.Param("id")
 	ex := Pocket{}
 
-	row := h.db.QueryRow("SELECT * FROM pocket WHERE id = $1", id)
-	err := row.Scan(&ex.ID, &ex.Balance, &ex.Currency)
+	row := h.db.QueryRow("SELECT * FROM pockets WHERE id = $1", id)
+	err := row.Scan(&ex.ID, &ex.Account_ID, &ex.Name, &ex.Category, &ex.Currency, &ex.Balance)
 
 	switch err {
 	case sql.ErrNoRows:
