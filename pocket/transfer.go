@@ -1,6 +1,8 @@
 package pocket
 
 import (
+	"fmt"
+	"math/big"
 	"net/http"
 
 	"github.com/kkgo-software-engineering/workshop/mlog"
@@ -47,15 +49,14 @@ func (h handler) Transfer(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, Err{Message: "Destination pocket not found"})
 	}
 
-	newSpBal := sp.Balance - tfr.Amount
+	newSpBal := SubBalance(sp.Balance, tfr.Amount)
 	if newSpBal < 0 {
 		logger.Error("Insufficient balance")
 		return c.JSON(http.StatusBadRequest, Err{Message: "Insufficient balance"})
 	}
 
 	sp.Balance = newSpBal
-	newDpBal := dp.Balance + tfr.Amount
-	dp.Balance = newDpBal
+	dp.Balance = AddBalance(dp.Balance, tfr.Amount)
 
 	txn := TransferTxn{
 		Src:         sp,
@@ -77,6 +78,21 @@ func (h handler) Transfer(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, resp)
+}
+func AddBalance(amount1 float64, amount2 float64) float64 {
+	bigAmount1, _ := new(big.Float).SetPrec(200).SetString(fmt.Sprintf("%f", amount1))
+	bigAmount2, _ := new(big.Float).SetPrec(200).SetString(fmt.Sprintf("%f", amount2))
+	bigResult := new(big.Float).Add(bigAmount2, bigAmount1)
+	result, _ := bigResult.Float64()
+	return result
+}
+
+func SubBalance(amount1 float64, amount2 float64) float64 {
+	bigAmount1, _ := new(big.Float).SetPrec(200).SetString(fmt.Sprintf("%f", amount1))
+	bigAmount2, _ := new(big.Float).SetPrec(200).SetString(fmt.Sprintf("%f", amount2))
+	bigResult := new(big.Float).Sub(bigAmount1, bigAmount2)
+	result, _ := bigResult.Float64()
+	return result
 }
 
 type TransactionHistory struct {
