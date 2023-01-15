@@ -1,47 +1,24 @@
 package pocket
 
 import (
-	"database/sql"
 	"net/http"
 
-	"github.com/kkgo-software-engineering/workshop/config"
 	"github.com/kkgo-software-engineering/workshop/mlog"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 )
 
 type TransferRequest struct {
-	SourceCloudPocketId      int     `json:"source_cloud_pocket_id"`
-	DestinationCloudPocketId int     `json:"destination_cloud_pocket_id"`
+	SourceCloudPocketId      int64   `json:"source_cloud_pocket_id"`
+	DestinationCloudPocketId int64   `json:"destination_cloud_pocket_id"`
 	Amount                   float64 `json:"amount"`
 	Description              string  `json:"description"`
 }
-
-type Pocket struct {
-	Id       int     `json:"id"`
-	Name     string  `json:"name"`
-	Category string  `json:"category"`
-	Currency string  `json:"-"`
-	Balance  float64 `json:"balance"`
-}
-
 type TransferResponse struct {
 	TransactionId          string `json:"transaction_id"`
 	SourceCloudPocket      Pocket `json:"source_cloud_pocket"`
 	DestinationCloudPocket Pocket `json:"destination_cloud_pocket"`
 	Status                 string `json:"status"`
-}
-type Err struct {
-	Message string `json:"message"`
-}
-
-type handler struct {
-	cfg config.FeatureFlag
-	db  *sql.DB
-}
-
-func New(cfgFlag config.FeatureFlag, db *sql.DB) *handler {
-	return &handler{cfgFlag, db}
 }
 
 func (h handler) Transfer(c echo.Context) error {
@@ -104,7 +81,7 @@ func (h handler) Transfer(c echo.Context) error {
 
 type TransactionHistory struct {
 	TransactionId   string  `json:"transaction_id"`
-	CloudPocketId   int     `json:"cloud_pocket_id"`
+	CloudPocketId   int64   `json:"cloud_pocket_id"`
 	Amount          float64 `json:"amount"`
 	TransactionType string  `json:"transaction_type"`
 	Description     string  `json:"description"`

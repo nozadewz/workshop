@@ -28,18 +28,22 @@ func MigrationTransactionHistory(db *sql.DB) *sql.DB {
 
 func MigrationCloudPocket(db *sql.DB) *sql.DB {
 	// Create table
-	createTb := `CREATE TABLE IF NOT EXISTS pockets (
-		id SERIAL primary key ,
-		name text,
-		category text,
-		currency text,
-		balance float8
-	);`
-	_, err := db.Exec(createTb)
-
+	createTBPocket := `CREATE TABLE IF NOT EXISTS pockets (id SERIAL PRIMARY KEY, account_id INT, name TEXT, category TEXT, currency TEXT, balance FLOAT, CONSTRAINT fk_account_id FOREIGN KEY(account_id) REFERENCES accounts(id))`
+	_, err := db.Exec(createTBPocket)
 	if err != nil {
-		log.Fatal("can't create table", err)
+		log.Fatal("can't create table pockets", err)
 	}
 	return db
 
+}
+
+func MigrationAccount(db *sql.DB) *sql.DB {
+	// Create table
+	createTBAccount := `CREATE TABLE IF NOT EXISTS accounts (id SERIAL PRIMARY KEY, balance FLOAT)`
+
+	_, err := db.Exec(createTBAccount)
+	if err != nil {
+		log.Fatal("can't create table accounts", err)
+	}
+	return db
 }

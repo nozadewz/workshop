@@ -6,7 +6,7 @@ import (
 	"github.com/google/uuid"
 )
 
-func (h handler) getPocketById(id int) (Pocket, error) {
+func (h handler) getPocketById(id int64) (Pocket, error) {
 	p := Pocket{}
 	stmt, err := h.db.Prepare("select * from pockets  where id=$1")
 	if err != nil {
@@ -14,7 +14,7 @@ func (h handler) getPocketById(id int) (Pocket, error) {
 	}
 	defer stmt.Close()
 	row := stmt.QueryRow(id)
-	err = row.Scan(&p.Id, &p.Name, &p.Category, &p.Currency, &p.Balance)
+	err = row.Scan(&p.ID, &p.Account_ID, &p.Name, &p.Category, &p.Currency, &p.Balance)
 	return p, err
 }
 
@@ -49,7 +49,7 @@ func logTransferTxn(tx *sql.Tx, t TransferTxn) (string, error) {
 	uuid := uuid.New()
 	spTxn := TransactionHistory{
 		TransactionId:   uuid.String(),
-		CloudPocketId:   t.Src.Id,
+		CloudPocketId:   t.Src.ID,
 		Amount:          t.Amount,
 		TransactionType: "debit",
 		Description:     t.Description,
@@ -57,7 +57,7 @@ func logTransferTxn(tx *sql.Tx, t TransferTxn) (string, error) {
 
 	dpTxn := TransactionHistory{
 		TransactionId:   uuid.String(),
-		CloudPocketId:   t.Dest.Id,
+		CloudPocketId:   t.Dest.ID,
 		Amount:          t.Amount,
 		TransactionType: "credit",
 		Description:     t.Description,
@@ -77,7 +77,7 @@ func logTransferTxn(tx *sql.Tx, t TransferTxn) (string, error) {
 
 func updateBalance(tx *sql.Tx, p Pocket) error {
 	sqlStatement := `UPDATE pockets SET balance=$1 WHERE id=$2`
-	_, err := tx.Exec(sqlStatement, p.Balance, p.Id)
+	_, err := tx.Exec(sqlStatement, p.Balance, p.ID)
 	return err
 }
 

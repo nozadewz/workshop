@@ -31,20 +31,9 @@ func main() {
 		logger.Fatal("unable to configure database", zap.Error(err))
 	}
 
+	db.MigrationAccount(sql)
 	db.MigrationCloudPocket(sql)
 	db.MigrationTransactionHistory(sql)
-	createTBAccount := `CREATE TABLE IF NOT EXISTS accounts (id SERIAL PRIMARY KEY, balance FLOAT)`
-	createTBPocket := `CREATE TABLE IF NOT EXISTS pockets (id SERIAL PRIMARY KEY, account_id INT, name TEXT, category TEXT, currency TEXT, balance FLOAT, CONSTRAINT fk_account_id FOREIGN KEY(account_id) REFERENCES accounts(id))`
-
-	_, err = sql.Exec(createTBAccount)
-	if err != nil {
-		log.Fatal("can't create table accounts", err)
-	}
-
-	_, err = sql.Exec(createTBPocket)
-	if err != nil {
-		log.Fatal("can't create table pockets", err)
-	}
 
 	e := router.RegRoute(cfg, logger, sql)
 

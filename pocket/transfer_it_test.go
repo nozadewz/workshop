@@ -33,9 +33,11 @@ func TestPocketTransfer(t *testing.T) {
 	e.POST("/cloud-pockets/transfer", hPocket.Transfer)
 
 	// need to be post pocket
+	db.MigrationAccount(sql)
 	db.MigrationCloudPocket(sql)
 	db.MigrationTransactionHistory(sql)
-	hPocket.db.Exec(`INSERT INTO pockets(name, category, currency, balance) VALUES ('Travel Fund', 'Vacation', 'THB', 200), ('Savings', 'Emergency Fund', 'THB', 100);`)
+	hPocket.db.Exec(`INSERT INTO accounts (balance) VALUES(100);`)
+	hPocket.db.Exec(`INSERT INTO pockets(name, account_id ,category, currency, balance) VALUES ('Travel Fund', 1 ,'Vacation', 'THB', 200), ('Savings', 1 ,'Emergency Fund', 'THB', 100);`)
 
 	reqBody := `{
 		"source_cloud_pocket_id": 1,
@@ -57,12 +59,12 @@ func TestPocketTransfer(t *testing.T) {
 	assert.Equal(t, http.StatusOK, rec.Code)
 	assert.NotEmpty(t, tfrs.TransactionId)
 	//assert source cloud pocket
-	assert.Equal(t, 1, tfrs.SourceCloudPocket.Id)
+	assert.Equal(t, 1, tfrs.SourceCloudPocket.ID)
 	assert.Equal(t, "Travel Fund", tfrs.SourceCloudPocket.Name)
 	assert.Equal(t, "Vacation", tfrs.SourceCloudPocket.Category)
 	assert.Equal(t, 150.00, tfrs.SourceCloudPocket.Balance)
 	//assert destination cloud pocket
-	assert.Equal(t, 2, tfrs.DestinationCloudPocket.Id)
+	assert.Equal(t, 2, tfrs.DestinationCloudPocket.ID)
 	assert.Equal(t, "Savings", tfrs.DestinationCloudPocket.Name)
 	assert.Equal(t, "Emergency Fund", tfrs.DestinationCloudPocket.Category)
 	assert.Equal(t, 150.00, tfrs.DestinationCloudPocket.Balance)
