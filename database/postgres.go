@@ -47,7 +47,7 @@ func createPocketTable(db *sql.DB) {
 func GetAllPockets(db *sql.DB, id string) ([]pocket.Pocket, error) {
 
 	queryStatement := `
-	SELECT * FROM pockets Where id = $1
+	SELECT * FROM pockets
 	`
 
 	st, err := db.Prepare(queryStatement)
@@ -56,7 +56,7 @@ func GetAllPockets(db *sql.DB, id string) ([]pocket.Pocket, error) {
 		return nil, err
 	}
 
-	rows, err2 := st.Query(id)
+	rows, err2 := st.Query()
 	if err2 != nil {
 		return nil, err
 	}
