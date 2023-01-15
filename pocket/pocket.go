@@ -30,8 +30,9 @@ func New(cfgFlag config.FeatureFlag, db *sql.DB) *handler {
 
 const (
 	cStmt      = "INSERT INTO pockets (name,account_id,category,currency,balance) VALUES ($1,$2,$3,$4,$5) RETURNING id;"
-	chkMoney   = "SELECT balance FROM accounts WHERE id = $1"
-	setBalance = "UPDATE accounts SET balance = $1 WHERE id = $2 RETURNING id"
+	chkBalance = "SELECT balance FROM accounts WHERE id = $1"
+	// chkBalancePocket = "SELECT balance FROM pockets WHERE account_id = $1"
+	// setBalance = "UPDATE accounts SET balance = $1 WHERE id = $2 RETURNING id"
 )
 
 func (h handler) CreatePocket(c echo.Context) error {
@@ -53,7 +54,7 @@ func (h handler) CreatePocket(c echo.Context) error {
 	}
 
 	var checkBalance float64
-	row := h.db.QueryRow(chkMoney, cp.Account_ID)
+	row := h.db.QueryRow(chkBalance, cp.Account_ID)
 	err = row.Scan(&checkBalance)
 	if err != nil {
 		logger.Error("row scan error:", zap.Error(err))
@@ -71,12 +72,12 @@ func (h handler) CreatePocket(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, err)
 	}
 
-	sb := checkBalance - cp.Balance
-	var acc_id int64
-	row = h.db.QueryRow(setBalance, sb, cp.Account_ID)
-	if err := row.Scan(&acc_id); err != nil {
-		return c.JSON(http.StatusInternalServerError, Err{Message: err.Error()})
-	}
+	// sb := checkBalance - cp.Balance
+	// var acc_id int64
+	// row = h.db.QueryRow(setBalance, sb, cp.Account_ID)
+	// if err := row.Scan(&acc_id); err != nil {
+	// 	return c.JSON(http.StatusInternalServerError, Err{Message: err.Error()})
+	// }
 
 	logger.Info("create successfully", zap.Int64("id", lastInsertId))
 	cp.ID = lastInsertId
