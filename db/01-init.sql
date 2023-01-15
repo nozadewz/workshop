@@ -1,4 +1,5 @@
 CREATE SEQUENCE IF NOT EXISTS account_id;
+CREATE SEQUENCE IF NOT EXISTS pockets_id;
 
 CREATE TABLE "accounts" (
     "id" INT NOT NULL DEFAULT nextval('account_id'::regclass),
@@ -12,7 +13,6 @@ CREATE TABLE "pockets" (
     "name" TEXT,
     "currency" TEXT,
     "balance" float8 NOT NULL DEFAULT 0,
-    PRIMARY KEY ("id")
+    PRIMARY KEY ("id"),
     CONSTRAINT fk_account_id FOREIGN KEY(account_id) REFERENCES accounts(id)
-)
-        
+);
