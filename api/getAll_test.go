@@ -30,8 +30,8 @@ func TestGetAll(t *testing.T) {
 					return nil, err
 				}
 				rows := mock.NewRows([]string{"id", "name", "category", "currency", "balance"}).
-					AddRow(12345, "Travel Fund", "Vacation", "THB", 100).
-					AddRow(67890, "Savings", "Emergency Fund", "THB", 200)
+					AddRow("12345", "Travel Fund", "Vacation", "THB", 100).
+					AddRow("67890", "Savings", "Emergency Fund", "THB", 200)
 
 				mock.ExpectQuery("SELECT").WillReturnRows(rows)
 				return db, err
