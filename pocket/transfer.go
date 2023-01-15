@@ -55,10 +55,8 @@ func (h handler) Transfer(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, Err{Message: "Insufficient balance"})
 	}
 
+	sp.Balance = newSpBal
 	dp.Balance = AddBalance(dp.Balance, tfr.Amount)
-
-	//print dp.Balance
-	fmt.Println("dp.Balance:", dp.Balance)
 
 	txn := TransferTxn{
 		Src:         sp,
