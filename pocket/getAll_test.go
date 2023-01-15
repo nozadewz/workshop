@@ -1,6 +1,6 @@
 //go:build unit
 
-package api
+package pocket
 
 import (
 	"testing"
