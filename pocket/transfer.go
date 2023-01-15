@@ -80,18 +80,18 @@ func (h handler) Transfer(c echo.Context) error {
 	return c.JSON(http.StatusOK, resp)
 }
 func AddBalance(amount1 float64, amount2 float64) float64 {
-	bigTfr, _ := new(big.Float).SetPrec(200).SetString(fmt.Sprintf("%f", amount1))
-	bigDpBalance, _ := new(big.Float).SetPrec(200).SetString(fmt.Sprintf("%f", amount2))
-	bigNewDpBal := new(big.Float).Add(bigDpBalance, bigTfr)
-	result, _ := bigNewDpBal.Float64()
+	bigAmount1, _ := new(big.Float).SetPrec(200).SetString(fmt.Sprintf("%f", amount1))
+	bigAmount2, _ := new(big.Float).SetPrec(200).SetString(fmt.Sprintf("%f", amount2))
+	bigResult := new(big.Float).Add(bigAmount2, bigAmount1)
+	result, _ := bigResult.Float64()
 	return result
 }
 
 func SubBalance(amount1 float64, amount2 float64) float64 {
-	bigTfr, _ := new(big.Float).SetPrec(200).SetString(fmt.Sprintf("%f", amount1))
-	bigDpBalance, _ := new(big.Float).SetPrec(200).SetString(fmt.Sprintf("%f", amount2))
-	bigNewDpBal := new(big.Float).Sub(bigTfr, bigDpBalance)
-	result, _ := bigNewDpBal.Float64()
+	bigAmount1, _ := new(big.Float).SetPrec(200).SetString(fmt.Sprintf("%f", amount1))
+	bigAmount2, _ := new(big.Float).SetPrec(200).SetString(fmt.Sprintf("%f", amount2))
+	bigResult := new(big.Float).Sub(bigAmount1, bigAmount2)
+	result, _ := bigResult.Float64()
 	return result
 }
 
