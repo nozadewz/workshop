@@ -23,7 +23,7 @@ func TestTransfer(t *testing.T) {
 		body := bytes.NewBufferString(`{
 			"source_cloud_pocket_id": 1,
 			"destination_cloud_pocket_id": 2,
-			"amount": 50.00,
+			"amount": 0.2 ,
 			"description":"Transfer from Travel fund to savings"
 		}`)
 		req := httptest.NewRequest(http.MethodPost, "/cloud-pockets/transfer", body)
@@ -38,13 +38,13 @@ func TestTransfer(t *testing.T) {
 		col := []string{"id", "account_id", "name", "category", "currency", "balance"}
 		mock.ExpectPrepare("select (.+) from pockets").
 			ExpectQuery().WithArgs(1).
-			WillReturnRows(sqlmock.NewRows(col).AddRow(1, 1, "apocket", "A", "THB", 100.0))
+			WillReturnRows(sqlmock.NewRows(col).AddRow(1, 1, "apocket", "A", "THB", 0.5))
 		mock.ExpectPrepare("select (.+) from pockets").
 			ExpectQuery().WithArgs(2).
-			WillReturnRows(sqlmock.NewRows(col).AddRow(2, 1, "bpocket", "B", "THB", 50.0))
+			WillReturnRows(sqlmock.NewRows(col).AddRow(2, 1, "bpocket", "B", "THB", 0.1))
 		mock.ExpectBegin()
-		mock.ExpectExec("UPDATE pockets SET (.+)").WithArgs(50.0, 1).WillReturnResult(driver.RowsAffected(1))
-		mock.ExpectExec("UPDATE pockets SET (.+)").WithArgs(100.0, 2).WillReturnResult(driver.RowsAffected(1))
+		mock.ExpectExec("UPDATE pockets SET (.+)").WithArgs(0.3, 1).WillReturnResult(driver.RowsAffected(1))
+		mock.ExpectExec("UPDATE pockets SET (.+)").WithArgs(0.3, 2).WillReturnResult(driver.RowsAffected(1))
 		mock.ExpectExec("INSERT INTO transaction_history (.+)").WillReturnResult(driver.RowsAffected(1))
 		mock.ExpectExec("INSERT INTO transaction_history (.+)").WillReturnResult(driver.RowsAffected(1))
 		mock.ExpectCommit()
@@ -56,6 +56,7 @@ func TestTransfer(t *testing.T) {
 			assert.Equal(t, http.StatusOK, rec.Code)
 			res := TransferResponse{}
 			json.Unmarshal(rec.Body.Bytes(), &res)
+			assert.Equal(t, float64(0.3), res.DestinationCloudPocket.Balance)
 			assert.Equal(t, "Success", res.Status)
 		}
 		if err := mock.ExpectationsWereMet(); err != nil {
