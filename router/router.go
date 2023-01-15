@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/kkgo-software-engineering/workshop/account"
+	"github.com/kkgo-software-engineering/workshop/api"
 	"github.com/kkgo-software-engineering/workshop/config"
 	"github.com/kkgo-software-engineering/workshop/featflag"
 	"github.com/kkgo-software-engineering/workshop/healthchk"
@@ -22,7 +23,10 @@ func RegRoute(cfg config.Config, logger *zap.Logger, db *sql.DB) *echo.Echo {
 	e.Use(middleware.BasicAuth(mw.Authenicate()))
 
 	hHealthChk := healthchk.New(db)
+	apis := api.New(db)
+
 	e.GET("/healthz", hHealthChk.Check)
+	e.GET("/cloud-pockets", apis.GetAllPockets)
 
 	e.GET("/", func(c echo.Context) error {
 		return c.String(http.StatusOK, "Hello, World!")
@@ -35,7 +39,8 @@ func RegRoute(cfg config.Config, logger *zap.Logger, db *sql.DB) *echo.Echo {
 	e.GET("/features", hFeatFlag.List)
 
 	hPocket := pocket.New(cfg.FeatureFlag, db)
+	e.POST("/cloud-pockets", hPocket.CreatePocket)
+	e.GET("/cloud-pockets/:id", hPocket.GetPocketBalanceById)
 	e.POST("/cloud-pockets/transfer", hPocket.Transfer)
-
 	return e
 }

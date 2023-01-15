@@ -36,7 +36,7 @@ terraform init
 3. สั่งสร้าง Terraform สร้าง Resource ใน AWS
 
 ```console
-terraform apply -var group_name="group-<ID>" --auto-approve
+terraform apply -var group_name="group-1" --auto-approve
 ```
 
 4. ตอบ `yes` กด enter แล้วรอไปกดกินข้าวก่อน
@@ -103,7 +103,7 @@ References:
 3.เนื่องจากเราใช้ AWS EKS เป็น Kubernetes Cluster ดังนั้นเราต้องเอา Kubernetes Context จาก AWS EKS โดยสั่ง (*มั่นใจว่าเรา run command ที่ terminal เดียวกันกับเรา export AWS_ACCESS_KEY_ID และ AWS_SECRET_ACCESS_KEY*)
 
 ```console
-aws eks update-kubeconfig --region ap-southeast-1 --name "eks-group-<ID>"
+aws eks update-kubeconfig --region ap-southeast-1 --name "eks-group-1"
 ```
 
 4.ลองสั่ง kubectl
