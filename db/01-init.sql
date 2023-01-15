@@ -11,6 +11,7 @@ CREATE TABLE "pockets" (
     "id" int NOT NULL DEFAULT nextval('pockets_id'::regclass),
     "account_id" INT,
     "name" TEXT,
+    "category" TEXT,
     "currency" TEXT,
     "balance" float8 NOT NULL DEFAULT 0,
     PRIMARY KEY ("id"),
