@@ -11,7 +11,6 @@ import (
 	"time"
 
 	"github.com/kkgo-software-engineering/workshop/config"
-	"github.com/kkgo-software-engineering/workshop/database"
 	"github.com/kkgo-software-engineering/workshop/router"
 	"go.uber.org/zap"
 
