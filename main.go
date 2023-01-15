@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/kkgo-software-engineering/workshop/config"
+	"github.com/kkgo-software-engineering/workshop/database"
 	"github.com/kkgo-software-engineering/workshop/router"
 	"go.uber.org/zap"
 
@@ -18,8 +19,8 @@ import (
 )
 
 func main() {
-	cfg := config.New().All()
 
+	cfg := config.New().All()
 	logger, err := zap.NewProduction()
 	if err != nil {
 		log.Fatal(err)
