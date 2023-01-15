@@ -67,7 +67,7 @@ func GetAllPockets(db *sql.DB, id string) ([]pocket.Pocket, error) {
 
 		pocket := pocket.Pocket{}
 
-		err = rows.Scan(&pocket.Id, &pocket.Name, &pocket.Category, &pocket.Currency, &pocket.Balance)
+		err = rows.Scan(&pocket.ID, &pocket.Name, &pocket.Category, &pocket.Currency, &pocket.Balance)
 
 		if err != nil {
 			return pockets, err
